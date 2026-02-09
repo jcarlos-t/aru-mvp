@@ -63,62 +63,7 @@ function App() {
 
     return (
         <div className="app">
-            {/* Canvas 3D para el avatar */}
-            <div className="canvas-container">
-                <Canvas shadows>
-                    <PerspectiveCamera makeDefault position={[0, 1.6, 3]} />
-                    <OrbitControls
-                        target={[0, 1, 0]}
-                        minDistance={2}
-                        maxDistance={6}
-                        maxPolarAngle={Math.PI / 2}
-                    />
-
-                    {/* Iluminación */}
-                    <ambientLight intensity={0.5} />
-                    <directionalLight
-                        position={[5, 5, 5]}
-                        intensity={1}
-                        castShadow
-                    />
-                    <spotLight
-                        position={[0, 5, 0]}
-                        angle={0.3}
-                        penumbra={1}
-                        intensity={0.5}
-                        castShadow
-                    />
-
-                    {/* Avatar con animaciones */}
-                    <Suspense fallback={null}>
-                        <Avatar
-                            animationQueue={animationQueue}
-                            onComplete={handleComplete}
-                            onAnimationChange={handleAnimationChange}
-                        />
-                        <Environment preset="studio" />
-                    </Suspense>
-
-                    {/* Suelo */}
-                    <mesh
-                        rotation={[-Math.PI / 2, 0, 0]}
-                        position={[0, 0, 0]}
-                        receiveShadow
-                    >
-                        <planeGeometry args={[10, 10]} />
-                        <meshStandardMaterial color="#2a2a2a" />
-                    </mesh>
-                </Canvas>
-
-                {/* Indicador de animación actual */}
-                {isTranslating && currentAnimation && (
-                    <div className="animation-indicator">
-                        Reproduciendo: <strong>{currentAnimation}</strong>
-                    </div>
-                )}
-            </div>
-
-            {/* Controles de traducción */}
+            {/* Controles de traducción - Panel Izquierdo */}
             <div className="controls-container">
                 <div className="controls-content">
                     <h1 className="title">
@@ -162,6 +107,63 @@ function App() {
                         <p>🔤 Las palabras desconocidas se deletrean letra por letra</p>
                     </div>
                 </div>
+            </div>
+
+            {/* Canvas 3D para el avatar - Panel Derecho */}
+            <div className="canvas-container">
+                <Canvas shadows>
+                    {/* Cámara con vista 3/4 */}
+                    <PerspectiveCamera makeDefault position={[1.5, 1.5, 2.5]} />
+                    <OrbitControls
+                        target={[0, 1, 0]}
+                        minDistance={2}
+                        maxDistance={5}
+                        maxPolarAngle={Math.PI / 1.8}
+                        enablePan={false}
+                    />
+
+                    {/* Iluminación reducida */}
+                    <ambientLight intensity={0.3} />
+                    <directionalLight
+                        position={[3, 4, 3]}
+                        intensity={0.5}
+                        castShadow
+                    />
+                    <spotLight
+                        position={[-2, 3, 2]}
+                        angle={0.4}
+                        penumbra={1}
+                        intensity={0.3}
+                        castShadow
+                    />
+
+                    {/* Avatar con animaciones */}
+                    <Suspense fallback={null}>
+                        <Avatar
+                            animationQueue={animationQueue}
+                            onComplete={handleComplete}
+                            onAnimationChange={handleAnimationChange}
+                        />
+                        <Environment preset="apartment" intensity={0.4} />
+                    </Suspense>
+
+                    {/* Suelo */}
+                    <mesh
+                        rotation={[-Math.PI / 2, 0, 0]}
+                        position={[0, 0, 0]}
+                        receiveShadow
+                    >
+                        <planeGeometry args={[10, 10]} />
+                        <meshStandardMaterial color="#1a1a2e" />
+                    </mesh>
+                </Canvas>
+
+                {/* Indicador de animación actual */}
+                {isTranslating && currentAnimation && (
+                    <div className="animation-indicator">
+                        Reproduciendo: <strong>{currentAnimation}</strong>
+                    </div>
+                )}
             </div>
         </div>
     );

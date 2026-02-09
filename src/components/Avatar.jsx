@@ -46,10 +46,30 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
 
             if (gltf.animations && gltf.animations.length > 0) {
                 const clip = gltf.animations[0];
-                clip.name = animationKey;
+                const newClip = clip.clone();
+                newClip.name = animationKey;
+
+                newClip.tracks.forEach((track) => {
+                    // 1. Limpiar jerarquía (RootNode)
+                    track.name = track.name.replace('RootNode.', '');
+
+                    // 2. Mapear nombres de huesos
+                    const parts = track.name.split('.');
+                    const boneName = parts[0];
+                    const property = parts[1];
+
+                    if (BONE_MAP[boneName]) {
+                        track.name = `${BONE_MAP[boneName]}.${property}`;
+                    } else if (boneName.endsWith('_JNT')) {
+                        // Intento genérico si no está en el mapa
+                        const cleanName = boneName.replace('_JNT', '');
+                        // Convertir snake_case a CamelCase simple (ej: l_index_JNT -> LIndex ?)
+                        // Por ahora dejemos el mapeo explícito como prioritario
+                    }
+                });
 
                 // Agregar el clip al mixer
-                const action = mixer.clipAction(clip);
+                const action = mixer.clipAction(newClip);
                 action.clampWhenFinished = true;
                 action.loop = THREE.LoopOnce;
 
