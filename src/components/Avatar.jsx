@@ -16,7 +16,7 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
     const [isPlaying, setIsPlaying] = useState(false);
 
     // Cargar el modelo base del avatar
-    const { scene } = useGLTF('/models/avatar3.glb');
+    const { scene } = useGLTF('/models/avatar.glb');
     const { actions, mixer } = useAnimations([], group);
 
     // Estado para manejar las animaciones cargadas dinámicamente
@@ -135,4 +135,4 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
 }
 
 // Precargar el modelo base
-useGLTF.preload('/models/avatar3.glb');
+useGLTF.preload('/models/avatar.glb');
