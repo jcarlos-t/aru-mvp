@@ -78,18 +78,13 @@ export function textToGloss(text, dictionary) {
     // Paso 2: Reordenar según estructura LSP
     const reorderedWords = reorderToLSP(cleanedWords);
 
-    // Paso 3: Mapear a animaciones o dactilología
+    // Paso 3: Mapear a animaciones (sin validación de diccionario)
     const animationQueue = [];
 
     for (const word of reorderedWords) {
-        if (dictionary[word]) {
-            // La palabra existe en el diccionario
-            animationQueue.push(word);
-        } else {
-            // Palabra no encontrada: usar dactilología (deletreo)
-            const letters = splitToDactylology(word);
-            animationQueue.push(...letters);
-        }
+        // Ya no validamos contra el diccionario, intentamos cargar todo
+        // Si no existe, el componente Avatar manejará el error/fallback (o simplemente no hará nada)
+        animationQueue.push(word);
     }
 
     return animationQueue;

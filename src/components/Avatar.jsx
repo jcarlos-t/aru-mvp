@@ -4,6 +4,64 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 
 /**
+ * Mapa de huesos para retargeting (Mixamo -> ReadyPlayerMe)
+ */
+const BONE_MAP = {
+    'mixamorigHips': 'Hips',
+    'mixamorigSpine': 'Spine',
+    'mixamorigSpine1': 'Spine1',
+    'mixamorigSpine2': 'Spine2',
+    'mixamorigNeck': 'Neck',
+    'mixamorigHead': 'Head',
+    'mixamorigLeftShoulder': 'LeftShoulder',
+    'mixamorigLeftArm': 'LeftArm',
+    'mixamorigLeftForeArm': 'LeftForeArm',
+    'mixamorigLeftHand': 'LeftHand',
+    'mixamorigLeftHandThumb1': 'LeftHandThumb1',
+    'mixamorigLeftHandThumb2': 'LeftHandThumb2',
+    'mixamorigLeftHandThumb3': 'LeftHandThumb3',
+    'mixamorigLeftHandIndex1': 'LeftHandIndex1',
+    'mixamorigLeftHandIndex2': 'LeftHandIndex2',
+    'mixamorigLeftHandIndex3': 'LeftHandIndex3',
+    'mixamorigLeftHandMiddle1': 'LeftHandMiddle1',
+    'mixamorigLeftHandMiddle2': 'LeftHandMiddle2',
+    'mixamorigLeftHandMiddle3': 'LeftHandMiddle3',
+    'mixamorigLeftHandRing1': 'LeftHandRing1',
+    'mixamorigLeftHandRing2': 'LeftHandRing2',
+    'mixamorigLeftHandRing3': 'LeftHandRing3',
+    'mixamorigLeftHandPinky1': 'LeftHandPinky1',
+    'mixamorigLeftHandPinky2': 'LeftHandPinky2',
+    'mixamorigLeftHandPinky3': 'LeftHandPinky3',
+    'mixamorigRightShoulder': 'RightShoulder',
+    'mixamorigRightArm': 'RightArm',
+    'mixamorigRightForeArm': 'RightForeArm',
+    'mixamorigRightHand': 'RightHand',
+    'mixamorigRightHandThumb1': 'RightHandThumb1',
+    'mixamorigRightHandThumb2': 'RightHandThumb2',
+    'mixamorigRightHandThumb3': 'RightHandThumb3',
+    'mixamorigRightHandIndex1': 'RightHandIndex1',
+    'mixamorigRightHandIndex2': 'RightHandIndex2',
+    'mixamorigRightHandIndex3': 'RightHandIndex3',
+    'mixamorigRightHandMiddle1': 'RightHandMiddle1',
+    'mixamorigRightHandMiddle2': 'RightHandMiddle2',
+    'mixamorigRightHandMiddle3': 'RightHandMiddle3',
+    'mixamorigRightHandRing1': 'RightHandRing1',
+    'mixamorigRightHandRing2': 'RightHandRing2',
+    'mixamorigRightHandRing3': 'RightHandRing3',
+    'mixamorigRightHandPinky1': 'RightHandPinky1',
+    'mixamorigRightHandPinky2': 'RightHandPinky2',
+    'mixamorigRightHandPinky3': 'RightHandPinky3',
+    'mixamorigLeftUpLeg': 'LeftUpLeg',
+    'mixamorigLeftLeg': 'LeftLeg',
+    'mixamorigLeftFoot': 'LeftFoot',
+    'mixamorigLeftToeBase': 'LeftToeBase',
+    'mixamorigRightUpLeg': 'RightUpLeg',
+    'mixamorigRightLeg': 'RightLeg',
+    'mixamorigRightFoot': 'RightFoot',
+    'mixamorigRightToeBase': 'RightToeBase'
+};
+
+/**
  * Componente Avatar - Renderiza un avatar 3D y ejecuta animaciones en secuencia
  * @param {Object} props
  * @param {string[]} props.animationQueue - Array de claves de animación para reproducir
@@ -18,6 +76,10 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
     // Cargar el modelo base del avatar
     const { scene } = useGLTF('/models/avatar.glb');
     const { actions, mixer } = useAnimations([], group);
+
+    useEffect(() => {
+        console.log('Avatar base cargado: /models/avatar.glb');
+    }, []);
 
     // Estado para manejar las animaciones cargadas dinámicamente
     const [loadedAnimations, setLoadedAnimations] = useState({});
@@ -35,9 +97,12 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
         try {
             // Cargar el archivo de animación usando GLTFLoader
             const loader = new GLTFLoader();
+            const fileName = `/animations/${animationKey.toLowerCase().replace('letra_', '')}.glb`;
+            console.log(`Cargando archivo de animación: ${fileName}`);
+
             const gltf = await new Promise((resolve, reject) => {
                 loader.load(
-                    `/animations/${animationKey.toLowerCase().replace('letra_', '')}.glb`,
+                    fileName,
                     resolve,
                     undefined,
                     reject
@@ -72,6 +137,7 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
                 const action = mixer.clipAction(newClip);
                 action.clampWhenFinished = true;
                 action.loop = THREE.LoopOnce;
+                action.timeScale = 0.5; // Doble de duración (mitad de velocidad)
 
                 // Guardar en el estado
                 setLoadedAnimations(prev => ({
@@ -94,6 +160,10 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
         if (animationQueue.length === 0 || currentIndex >= animationQueue.length) {
             setIsPlaying(false);
             if (currentIndex >= animationQueue.length && onComplete) {
+                // Fade out final (regreso natural al estado base al terminar la secuencia)
+                if (previousActionRef.current) {
+                    previousActionRef.current.fadeOut(0.5);
+                }
                 onComplete();
             }
             return;
@@ -119,15 +189,24 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
                 previousActionRef.current.fadeOut(0.3);
             }
 
-            // Reproducir la nueva animación con fadeIn
+            // Reproducir la nueva animación
             action.reset();
-            action.fadeIn(0.3);
+            action.setEffectiveTimeScale(0.5); // Asegurar velocidad (0.5 = doble duración)
+            action.setEffectiveWeight(1); // Asegurar peso
+
+            // Solo usar fadeIn si hay una animación previa fluyendo
+            if (previousActionRef.current) {
+                action.fadeIn(0.5); // Transición más suave (0.5s)
+            }
+
             action.play();
 
             // Listener para cuando termine la animación
             const onFinished = (e) => {
                 if (e.action === action) {
                     mixer.removeEventListener('finished', onFinished);
+                    // No hacemos fadeOut aquí para permitir transición suave a la siguiente palabra
+                    // El fadeOut se hace al terminar la secuencia completa o en el crossFade
                     setCurrentIndex(prev => prev + 1);
                 }
             };
@@ -137,6 +216,8 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
         });
 
     }, [currentIndex, animationQueue, mixer, onComplete, onAnimationChange]);
+
+
 
     /**
      * Resetear cuando cambia la cola de animaciones
