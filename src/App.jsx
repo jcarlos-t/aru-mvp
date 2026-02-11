@@ -67,8 +67,7 @@ function App() {
             <div className="controls-container">
                 <div className="controls-content">
                     <h1 className="title">
-                        <span className="logo">ARU</span>
-                        <span className="subtitle">Traductor de Lengua de Señas Peruana</span>
+                        <span className="logo">Traductor de Lengua de Señas Peruana</span>
                     </h1>
 
                     <div className="input-group">
@@ -88,7 +87,7 @@ function App() {
                                 onClick={handleTranslate}
                                 disabled={isTranslating || !inputText.trim()}
                             >
-                                {isTranslating ? '🔄 Traduciendo...' : '🤟 Traducir a LSP'}
+                                {isTranslating ? 'Traduciendo...' : 'Traducir'}
                             </button>
 
                             {(isTranslating || animationQueue.length > 0) && (
@@ -96,15 +95,15 @@ function App() {
                                     className="btn btn-secondary"
                                     onClick={handleReset}
                                 >
-                                    🔄 Reiniciar
+                                    Reiniciar
                                 </button>
                             )}
                         </div>
                     </div>
 
                     <div className="info">
-                        <p>💡 <strong>Palabra disponible:</strong> Ahora</p>
-                        <p>🔤 Las palabras desconocidas se deletrean letra por letra</p>
+                        <p><strong>Palabra disponible:</strong> Ahora</p>
+                        <p>Las palabras desconocidas se deletrean letra por letra</p>
                     </div>
                 </div>
             </div>
