@@ -100,11 +100,6 @@ function App() {
                             )}
                         </div>
                     </div>
-
-                    <div className="info">
-                        <p><strong>Palabra disponible:</strong> Ahora</p>
-                        <p>Las palabras desconocidas se deletrean letra por letra</p>
-                    </div>
                 </div>
             </div>
 

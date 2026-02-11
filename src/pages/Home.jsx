@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/Home.css';
 import '../styles/Navbar.css';
+import logo from '../assets/aru-img.jpeg'
 
 const Home = () => {
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Home = () => {
 
                         <div className="hero-image-container">
                             <div className="hero-circle"></div>
-                            <img src="/person_signing.png" alt="Person Signing" className="hero-image" />
+                            <img src={logo} alt="Person Signing" className="hero-image" />
                         </div>
                     </div>
 

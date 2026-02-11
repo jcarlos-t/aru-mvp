@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 
@@ -72,14 +73,36 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
     const group = useRef();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [activeQueue, setActiveQueue] = useState([]); // New local state to buffer queue
 
     // Cargar el modelo base del avatar
     const { scene } = useGLTF('/models/avatar.glb');
-    const { actions, mixer } = useAnimations([], group);
+
+    // CHANGED: Manually manage mixer to control playback speed and fix "fast forward" glitch
+    const mixerRef = useRef(null);
 
     useEffect(() => {
-        console.log('Avatar base cargado: /models/avatar.glb');
-    }, []);
+        if (group.current) {
+            mixerRef.current = new THREE.AnimationMixer(group.current);
+            console.log('Avatar base cargado: /models/avatar.glb');
+        }
+
+        return () => {
+            if (mixerRef.current) {
+                mixerRef.current.stopAllAction();
+                mixerRef.current = null;
+            }
+        }
+    }, [scene]);
+
+    // Use useFrame to update mixer manually with capped delta
+    useFrame((state, delta) => {
+        if (mixerRef.current) {
+            // Cap delta to 0.1s to prevent huge jumps if frame drops or during loading
+            const safeDelta = Math.min(delta, 0.1);
+            mixerRef.current.update(safeDelta);
+        }
+    });
 
     // Estado para manejar las animaciones cargadas dinámicamente
     const [loadedAnimations, setLoadedAnimations] = useState({});
@@ -89,6 +112,8 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
      * Carga una animación desde un archivo GLB
      */
     const loadAnimation = async (animationKey) => {
+        if (!mixerRef.current) return null;
+
         // Si ya está cargada, no volver a cargar
         if (loadedAnimations[animationKey]) {
             return loadedAnimations[animationKey];
@@ -134,10 +159,10 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
                 });
 
                 // Agregar el clip al mixer
-                const action = mixer.clipAction(newClip);
+                const action = mixerRef.current.clipAction(newClip);
                 action.clampWhenFinished = true;
                 action.loop = THREE.LoopOnce;
-                action.timeScale = 0.5; // Doble de duración (mitad de velocidad)
+                action.timeScale = 1; // Velocidad normal, ajustaremos en reproducción
 
                 // Guardar en el estado
                 setLoadedAnimations(prev => ({
@@ -157,10 +182,12 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
      * Reproduce la siguiente animación en la cola
      */
     useEffect(() => {
-        if (animationQueue.length === 0 || currentIndex >= animationQueue.length) {
+        let isActive = true;
+
+        if (activeQueue.length === 0 || currentIndex >= activeQueue.length) {
             setIsPlaying(false);
-            if (currentIndex >= animationQueue.length && onComplete) {
-                // Fade out final (regreso natural al estado base al terminar la secuencia)
+            if (currentIndex >= activeQueue.length && activeQueue.length > 0 && onComplete) {
+                // Fade out final
                 if (previousActionRef.current) {
                     previousActionRef.current.fadeOut(0.5);
                 }
@@ -169,7 +196,9 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
             return;
         }
 
-        const currentAnimKey = animationQueue[currentIndex];
+        if (!mixerRef.current) return;
+
+        const currentAnimKey = activeQueue[currentIndex];
         setIsPlaying(true);
 
         if (onAnimationChange) {
@@ -178,6 +207,8 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
 
         // Cargar y reproducir la animación
         loadAnimation(currentAnimKey).then(action => {
+            if (!isActive) return; // Ignore if effect was cleaned up
+
             if (!action) {
                 // Si no se puede cargar, pasar a la siguiente
                 setCurrentIndex(prev => prev + 1);
@@ -191,12 +222,12 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
 
             // Reproducir la nueva animación
             action.reset();
-            action.setEffectiveTimeScale(0.5); // Asegurar velocidad (0.5 = doble duración)
-            action.setEffectiveWeight(1); // Asegurar peso
+            action.setEffectiveTimeScale(0.5); // 0.5 = doble duración (más lento)
+            action.setEffectiveWeight(1);
 
             // Solo usar fadeIn si hay una animación previa fluyendo
             if (previousActionRef.current) {
-                action.fadeIn(0.5); // Transición más suave (0.5s)
+                action.fadeIn(0.5);
             }
 
             action.play();
@@ -204,27 +235,38 @@ export default function Avatar({ animationQueue = [], onComplete, onAnimationCha
             // Listener para cuando termine la animación
             const onFinished = (e) => {
                 if (e.action === action) {
-                    mixer.removeEventListener('finished', onFinished);
-                    // No hacemos fadeOut aquí para permitir transición suave a la siguiente palabra
-                    // El fadeOut se hace al terminar la secuencia completa o en el crossFade
-                    setCurrentIndex(prev => prev + 1);
+                    mixerRef.current.removeEventListener('finished', onFinished);
+                    if (isActive) {
+                        setCurrentIndex(prev => prev + 1);
+                    }
                 }
             };
 
-            mixer.addEventListener('finished', onFinished);
+            mixerRef.current.addEventListener('finished', onFinished);
             previousActionRef.current = action;
         });
 
-    }, [currentIndex, animationQueue, mixer, onComplete, onAnimationChange]);
+        return () => {
+            isActive = false;
+            // Optional: stop current action if needed, but fading out in next effect is usually smoother.
+            // However, for rapid changes, we might want to ensure we don't stack animations.
+            // But previousActionRef logic handles the crossfade.
+        };
 
-
+    }, [currentIndex, activeQueue, onComplete, onAnimationChange]); // Removed mixer from dependencies as it's a ref
 
     /**
      * Resetear cuando cambia la cola de animaciones
      */
     useEffect(() => {
+        // Synchronously update state to prevent race conditions
+        setActiveQueue(animationQueue);
         setCurrentIndex(0);
         setIsPlaying(false);
+
+        if (previousActionRef.current) {
+            previousActionRef.current.fadeOut(0.5);
+        }
         previousActionRef.current = null;
     }, [animationQueue]);
 
