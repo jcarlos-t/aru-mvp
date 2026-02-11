@@ -1,27 +1,119 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 :root {
-    font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+  /* Color Palette - ARU Brand */
+  --blue-sky: #2898ee;
+  --dark-blue: #251c5b;
+  --blue: #3594f8;
+  --purple: #8c52ff;
+  --cyan: #5ce1e6;
+  --blue-bright: #107acc;
+  --cyan-teal: #0cbccc;
+  --navy-medium: #251c5b;
+  --navy-dark: #251c5b;
+  --navy-dark-op: #251c5b8c;
+  --gray: #646271;
+  --dark-gray: #4f4d5b;
 
-    color-scheme: dark;
+  --white: #FFFFFF;
+  --gray-light: #F5F7FA;
+  --gray-medium: #aab5c5;
+  --success-green: #00D9A3;
+  --error-red: #FF3B5C;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Theme Setup: White Background, Blue Cards */
+  --bg-primary: var(--white);
+  --bg-secondary: var(--gray-light);
+  --card-bg: var(--navy-dark);
+  --card-text: var(--white);
+
+  --text-primary: var(--navy-dark);
+  --text-secondary: var(--gray-medium);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--white) 0%, var(--gray-light) 100%);
+  --gradient-card: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-medium) 100%);
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+
+  /* Shadows */
+  --shadow-xs: 0 0px 12px rgba(20, 33, 87, 0.1);
+  --shadow-sm: 0 4px 12px rgba(20, 33, 87, 0.1);
+  --shadow-md: 0 8px 24px rgba(20, 33, 87, 0.2);
+  --shadow-lg: 0 16px 48px rgba(20, 33, 87, 0.3);
+  
+  /* Typography */
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: var(--gradient-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 #root {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utility Classes */
+.btn {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+  background: var(--navy-dark);
+  color: var(--white);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--navy-dark);
+  border: 1px solid rgba(37, 28, 91, 0.2);
 }
