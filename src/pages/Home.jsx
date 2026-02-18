@@ -38,6 +38,9 @@ const Home = () => {
                                 <button className="btn btn-secondary btn-lg-2" onClick={() => navigate('/conversation')}>
                                     Modo Conversación
                                 </button>
+                                <button className="btn btn-accent btn-lg-2" onClick={() => navigate('/interview-selection')} style={{ marginLeft: '10px', backgroundColor: '#6f42c1', color: 'white', border: 'none' }}>
+                                    Modo Entrevista
+                                </button>
                             </div>
                         </div>
 

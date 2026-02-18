@@ -1,0 +1,176 @@
+.interview-selection-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding-top: 80px;
+    /* Space for navbar */
+    color: #343a40;
+}
+
+.selection-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.selection-header {
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+}
+
+.selection-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a237e; 
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: initial;
+}
+
+
+.selection-header p {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: #495057;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.back-button:hover {
+    color: var(--purple);
+}
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.question-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.question-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.question-card.selected {
+    border-color: var(--purple);
+    background-color: rgba(111, 66, 193, 0.05);
+}
+
+.card-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-selected {
+    color: var(--purple);
+    width: 24px;
+    height: 24px;
+}
+
+.icon-unselected {
+    color: #adb5bd;
+    width: 24px;
+    height: 24px;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    bottom: 2rem;
+}
+
+.selection-count {
+    font-weight: 600;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.start-button {
+    /* Cambiamos el degradado por un azul sólido */
+    background: #1a237e; 
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* Para que al pasar el mouse se vea un azul un poco más vibrante */
+.start-button:hover:not(.disabled) {
+    background: #283593; 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
+}
+
+.start-button.disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 768px) {
+    .selection-header {
+        margin-top: 1rem;
+    }
+
+    .back-button {
+        position: static;
+        margin-bottom: 1rem;
+        transform: none;
+    }
+
+    .action-bar {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
