@@ -68,10 +68,10 @@ const InterviewMode = () => {
             <div className="interview-content">
                 <div className="avatar-section">
                     <Canvas shadows className="avatar-canvas">
-                        <PerspectiveCamera makeDefault position={[0, 1.4, 3]} />
+                        <PerspectiveCamera makeDefault position={[0, 1.4, 2]} />
                         <OrbitControls
                             target={[0, 1.2, 0]}
-                            minDistance={2}
+                            minDistance={1.5}
                             maxDistance={5}
                             enablePan={false}
                             maxPolarAngle={Math.PI / 1.8}
